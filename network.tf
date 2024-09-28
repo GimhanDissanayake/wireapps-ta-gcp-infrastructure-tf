@@ -33,7 +33,7 @@ module "gcp-network" {
     priority           = 1001
     destination_ranges = ["0.0.0.0/0"]
     source_ranges      = ["35.235.240.0/20"]
-    target_tags        = ["bastion"]
+    target_tags        = ["allow-ssh-iap"]
     allow = [{
       protocol = "tcp"
       ports    = ["22"]

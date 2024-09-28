@@ -31,6 +31,10 @@ module "gke" {
     {
       cidr_block   = module.gcp-network.subnets["${var.region}/bastion-subnet-${var.region}"].ip_cidr_range
       display_name = "VPC"
+    },
+    {
+      cidr_block   = "${module.bastion_pubip.addresses[0]}/32"
+      display_name = "Bastion Github Action Self Hosted Runner"
     }
   ]
 
@@ -68,24 +72,13 @@ resource "google_project_iam_member" "gke_workload_iam" {
   member  = "serviceAccount:${google_service_account.gke_workload_sa.email}"
 }
 
-locals {
-  k8s_apps_sa_combined = flatten([
-    for app, envs in var.k8s_apps_sa : [
-      for env in envs : {
-        app = app
-        env = env
-      }
-    ]
-  ])
-}
-
 resource "google_service_account_iam_binding" "gke_workload_iam" {
   service_account_id = google_service_account.gke_workload_sa.id
   role               = "roles/iam.workloadIdentityUser"
 
   members = flatten([
     [
-      for item in local.k8s_apps_sa_combined : "serviceAccount:${var.project_id}.svc.id.goog[${item.app}-${item.env}/api-sa]"
+      "serviceAccount:${var.project_id}.svc.id.goog[development/api-app-sa]"
     ],
     [
       for item in var.k8s_aux_sa : "serviceAccount:${var.project_id}.svc.id.goog[${item}]"

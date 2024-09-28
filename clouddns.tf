@@ -5,5 +5,5 @@ module "dns-public-zone" {
   project_id = var.project_id
   type       = "public"
   name       = "${local.default_name}-gcp-dns"
-  domain     = "${local.default_name}.example.com."
+  domain     = "${local.default_name}.${var.domain_name}."
 }

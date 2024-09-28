@@ -22,3 +22,17 @@ resource "google_project_service" "gcp_services" {
   service            = each.key
   disable_on_destroy = false
 }
+
+# OrgPolicies owerwrite
+resource "google_project_organization_policy" "this" {
+  for_each = { for idx, policy in var.organization_policy_overwrite : idx => policy }
+
+  project    = each.value.project
+  constraint = each.value.constraint
+
+  list_policy {
+    allow {
+      values = each.value.values
+    }
+  }
+}
