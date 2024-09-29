@@ -1,0 +1,42 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infra-controllers
+  namespace: flux-system
+spec:
+  interval: 1h
+  retryInterval: 1m
+  timeout: 5m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: .././infrastructure/controllers
+  prune: true
+  wait: true
+  postBuild:
+    substitute:
+      gcp_ingress_loadbalancerip: "x.x.x.x"
+      gcp_ingress_source_range: "[0.0.0.0/0]"
+      cert_manager_service_account: "<service_account_name>@<project_id>.iam.gserviceaccount.com"
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infra-configs
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: infra-controllers
+  interval: 1h
+  retryInterval: 1m
+  timeout: 5m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: .././infrastructure/configs
+  prune: true
+  wait: true
+  postBuild:
+    substitute:
+      cloudDNS_project_id: <project_id>
