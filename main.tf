@@ -36,3 +36,13 @@ resource "google_project_organization_policy" "this" {
     }
   }
 }
+
+resource "google_compute_address" "ingress_lb_static" {
+  name   = "ingress-lb-static-ip"
+  region = var.region
+
+  depends_on = [
+    google_project_service.gcp_services
+  ]
+}
+

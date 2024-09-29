@@ -26,6 +26,8 @@ Wireapps Technical Assessment GCP Infrastructure Deployment using Terraform
   make apply
   ```
 
+* Flux [bootstrap](./clusters/README.md)  
+
 # TF Docs
 
 ## Requirements
@@ -66,7 +68,10 @@ Wireapps Technical Assessment GCP Infrastructure Deployment using Terraform
 | Name | Type |
 |------|------|
 | [google_artifact_registry_repository.this](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/artifact_registry_repository) | resource |
+| [google_compute_address.ingress_lb_static](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_address) | resource |
 | [google_compute_router.router](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_router) | resource |
+| [google_project_iam_binding.dns_iam](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_binding) | resource |
+| [google_project_iam_custom_role.dns](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_custom_role) | resource |
 | [google_project_iam_member.bastion_gke](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_project_iam_member.gke_workload_iam](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_project_iam_member.node_gcr_sa_iam](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
@@ -77,7 +82,9 @@ Wireapps Technical Assessment GCP Infrastructure Deployment using Terraform
 | [google_secret_manager_secret_version.appvm_ssh_keys](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_version) | resource |
 | [google_secret_manager_secret_version.bastion_ssh_keys](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_version) | resource |
 | [google_service_account.default](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account) | resource |
+| [google_service_account.dns_sa](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account) | resource |
 | [google_service_account.gke_workload_sa](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account) | resource |
+| [google_service_account_iam_binding.dns_wl_iam](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account_iam_binding) | resource |
 | [google_service_account_iam_binding.gke_workload_iam](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account_iam_binding) | resource |
 | [tls_private_key.appvm_ssh_keys](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) | resource |
 | [tls_private_key.bastion_ssh_keys](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) | resource |
@@ -97,8 +104,7 @@ Wireapps Technical Assessment GCP Infrastructure Deployment using Terraform
 | <a name="input_gke_node_pools"></a> [gke\_node\_pools](#input\_gke\_node\_pools) | GKE nodepool as list of object | `list(map(any))` | n/a | yes |
 | <a name="input_ip_range_pods_name"></a> [ip\_range\_pods\_name](#input\_ip\_range\_pods\_name) | The secondary ip range to use for pods | `string` | `"gke-pods-cidr"` | no |
 | <a name="input_ip_range_services_name"></a> [ip\_range\_services\_name](#input\_ip\_range\_services\_name) | The secondary ip range to use for services | `string` | `"gke-svc-cidr"` | no |
-| <a name="input_k8s_apps_sa"></a> [k8s\_apps\_sa](#input\_k8s\_apps\_sa) | Service Accounts for K8s Workloads | `map(list(string))` | `null` | no |
-| <a name="input_k8s_aux_sa"></a> [k8s\_aux\_sa](#input\_k8s\_aux\_sa) | Service Accounts for K8s Workloads | `list(string)` | `null` | no |
+| <a name="input_k8s_apps_sa"></a> [k8s\_apps\_sa](#input\_k8s\_apps\_sa) | Service Accounts for K8s Workloads | `list(string)` | `null` | no |
 | <a name="input_node_pools_taints"></a> [node\_pools\_taints](#input\_node\_pools\_taints) | node pool taints configs | `map(list(any))` | `null` | no |
 | <a name="input_organization_policy_overwrite"></a> [organization\_policy\_overwrite](#input\_organization\_policy\_overwrite) | organization\_policy\_overwrite | <pre>list(object({<br/>    project    = string<br/>    constraint = string<br/>    values     = list(string)<br/>  }))</pre> | <pre>[<br/>  {<br/>    "constraint": "constraints/compute.vmExternalIpAccess",<br/>    "project": "test-project",<br/>    "values": [<br/>      "projects/test-project/zones/northamerica-northeast1-a/instances/test-vm"<br/>    ]<br/>  }<br/>]</pre> | no |
 | <a name="input_pg_admin_password"></a> [pg\_admin\_password](#input\_pg\_admin\_password) | n/a | `string` | n/a | yes |
@@ -119,10 +125,11 @@ Wireapps Technical Assessment GCP Infrastructure Deployment using Terraform
 
 | Name | Description |
 |------|-------------|
-| <a name="output_app_external_ip"></a> [app\_external\_ip](#output\_app\_external\_ip) | n/a |
+| <a name="output_appvm_external_ip"></a> [appvm\_external\_ip](#output\_appvm\_external\_ip) | n/a |
 | <a name="output_bastion_external_ip"></a> [bastion\_external\_ip](#output\_bastion\_external\_ip) | n/a |
 | <a name="output_dns_ns_records"></a> [dns\_ns\_records](#output\_dns\_ns\_records) | n/a |
+| <a name="output_dns_solver_service_account"></a> [dns\_solver\_service\_account](#output\_dns\_solver\_service\_account) | n/a |
 | <a name="output_gke_workload_service_account"></a> [gke\_workload\_service\_account](#output\_gke\_workload\_service\_account) | n/a |
+| <a name="output_ingress_lb_static"></a> [ingress\_lb\_static](#output\_ingress\_lb\_static) | n/a |
 | <a name="output_node_pool_service_account"></a> [node\_pool\_service\_account](#output\_node\_pool\_service\_account) | n/a |
-| <a name="output_postgres_db_instance_ip"></a> [postgres\_db\_instance\_ip](#output\_postgres\_db\_instance\_ip) | DB |
-| <a name="output_postgres_db_private_ip"></a> [postgres\_db\_private\_ip](#output\_postgres\_db\_private\_ip) | n/a |
+| <a name="output_postgres_db_private_ip"></a> [postgres\_db\_private\_ip](#output\_postgres\_db\_private\_ip) | DB |

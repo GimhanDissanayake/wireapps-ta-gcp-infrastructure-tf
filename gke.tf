@@ -78,10 +78,7 @@ resource "google_service_account_iam_binding" "gke_workload_iam" {
 
   members = flatten([
     [
-      "serviceAccount:${var.project_id}.svc.id.goog[development/api-app-sa]"
-    ],
-    [
-      for item in var.k8s_aux_sa : "serviceAccount:${var.project_id}.svc.id.goog[${item}]"
+      for item in var.k8s_apps_sa : "serviceAccount:${var.project_id}.svc.id.goog[${item}]"
     ]
   ])
 
@@ -100,4 +97,47 @@ resource "google_artifact_registry_repository" "this" {
   docker_config {
     immutable_tags = true
   }
+}
+
+resource "google_service_account" "dns_sa" {
+  account_id   = "${local.default_name}-dns-solver"
+  display_name = "ingress-dns-solver"
+
+  depends_on = [
+    module.gke
+  ]
+}
+
+resource "google_project_iam_custom_role" "dns" {
+  role_id     = "dnsSolverRole"
+  title       = "dns-solver-role"
+  description = "dns solver role used for certmanager"
+  permissions = [
+    "dns.resourceRecordSets.create", "dns.resourceRecordSets.update", "dns.resourceRecordSets.delete", "dns.resourceRecordSets.get", "dns.resourceRecordSets.list",
+    "dns.changes.create", "dns.changes.get", "dns.changes.list",
+    "dns.managedZones.list"
+  ]
+}
+
+resource "google_project_iam_binding" "dns_iam" {
+  project = var.project_id
+  role    = google_project_iam_custom_role.dns.id
+
+  members = [
+    "serviceAccount:${google_service_account.dns_sa.email}"
+  ]
+}
+
+resource "google_service_account_iam_binding" "dns_wl_iam" {
+  service_account_id = google_service_account.dns_sa.id
+  role               = "roles/iam.workloadIdentityUser"
+
+  members = [
+    "serviceAccount:${var.project_id}.svc.id.goog[cert-manager/cert-manager]"
+  ]
+
+  depends_on = [
+    google_service_account.dns_sa,
+    module.gke
+  ]
 }

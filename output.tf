@@ -14,15 +14,19 @@ output "bastion_external_ip" {
   value = module.bastion_pubip.addresses[0]
 }
 
-output "app_external_ip" {
+output "appvm_external_ip" {
   value = module.appvm_pubip[0].addresses[0]
 }
 
 # DB
-output "postgres_db_instance_ip" {
-  value = module.pg.instance_ip_address
-}
-
 output "postgres_db_private_ip" {
   value = module.pg.private_ip_address
+}
+
+output "ingress_lb_static" {
+  value = google_compute_address.ingress_lb_static.address
+}
+
+output "dns_solver_service_account" {
+  value = google_service_account.dns_sa.email
 }
